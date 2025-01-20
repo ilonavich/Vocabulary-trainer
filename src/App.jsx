@@ -10,7 +10,7 @@ import Projects from "./pages/Projects";
 import Blog from "./pages/Blog";
 import VocabCards from "./pages/VocabCards";
 import AddVocab from "./pages/AddVocab";
-import MainLayout from "./pages/MainLayout";
+import MainLayout from "./Layout/MainLayout";
 
 function App() {
   return (

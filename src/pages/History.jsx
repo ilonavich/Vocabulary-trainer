@@ -1,11 +1,7 @@
 import React from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
-
 const History = () => {
   return (
     <div>
-      <Navbar />
       <h1>
         {/* Success - Solid */}
 
@@ -133,8 +129,6 @@ const History = () => {
           <p className="whitespace-nowrap text-sm">Failed</p>
         </span>
       </h1>
-
-      <Footer />
     </div>
   );
 };

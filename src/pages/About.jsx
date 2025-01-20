@@ -6,11 +6,9 @@ import Footer from "../components/Footer";
 
 const About = () => {
   return (
-    <h1>
-      <Navbar />
+    <>
       <AboutUs />
-      <Footer />
-    </h1>
+    </>
   );
 };
 

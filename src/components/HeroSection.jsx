@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
@@ -17,19 +18,12 @@ const HeroSection = () => {
             </p>
 
             <div className="mt-8 flex flex-wrap justify-center gap-4">
-              <a
-                className="block w-full rounded border border-blue-600 bg-blue-600 px-12 py-3 text-sm font-medium text-white hover:bg-transparent hover:text-black focus:outline-none focus:ring active:text-opacity-75 sm:w-auto"
-                href="addvocab"
-              >
-                + add new vocabulary
-              </a>
-
-              <a
+              <Link
+                to="vocabcards"
                 className="block w-full rounded border border-blue-600 px-12 py-3 text-sm font-medium text-black hover:bg-blue-600 focus:outline-none focus:ring active:bg-blue-500 sm:w-auto"
-                href="vocabcards"
               >
                 Practice vocabulary
-              </a>
+              </Link>
             </div>
           </div>
         </div>

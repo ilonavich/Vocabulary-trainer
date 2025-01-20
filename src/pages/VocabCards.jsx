@@ -1,153 +1,150 @@
-import React from "react";
-import Navbar from "../components/Navbar";
-import Footer from "../components/Footer";
+import { useState } from "react";
+import ReactCardFlip from "react-card-flip";
+import axios from "axios";
 
 const VocabCards = () => {
+  const [vocabList, setVocabList] = useState([
+    { native: "Hallo", translation: "Hello", flipped: false },
+    { native: "Danke", translation: "Thank you", flipped: false },
+    { native: "Auf Wiedersehen", translation: "Goodbye", flipped: false },
+  ]);
+
+  const [newVocab, setNewVocab] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  // console.log(import.meta.env.VITE_OPENAI_TEXT);
+
+  const translateWord = async (word) => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_OPENAI_TEXT}`,
+        {
+          model: "gpt-4o",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a translation assistant. Translate the following word from German to English and return only the translate back, without adding comments",
+            },
+            {
+              role: "user",
+              content: `Translate the word: ${word}`,
+            },
+          ],
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            provider: "open-ai",
+            mode: "production",
+            Authorization: `${import.meta.env.VITE_OPENAI_APIKEY}`,
+          },
+        }
+      );
+      console.log(response.data);
+      return response.data.message?.content.trim() || "Translaiton failed";
+    } catch (error) {
+      console.error(
+        "Translation API Error:",
+        error.response?.data || error.message
+      );
+      return "Translation Failed";
+    }
+  };
+
+  const addCard = async () => {
+    if (!newVocab.trim()) return;
+    setLoading(true);
+    const translation = await translateWord(newVocab);
+    setVocabList((prev) => [
+      ...prev,
+      { native: newVocab, translation, flipped: false },
+    ]);
+    setNewVocab("");
+    setLoading(false);
+  };
+
+  const flipCard = (index) => {
+    setVocabList((prev) =>
+      prev.map((card, i) =>
+        i === index ? { ...card, flipped: !card.flipped } : card
+      )
+    );
+  };
+
   return (
     <div>
-      <Navbar />
-      <div class="flex flex-wrap justify-center mt-10">
-        <div class="p-4 max-w-sm">
-          <div class="flex rounded-lg h-full dark:bg-gray-800 bg-teal-400 p-8 flex-col">
-            <div class="flex items-center mb-3">
-              <div class="w-8 h-8 mr-3 inline-flex items-center justify-center rounded-full dark:bg-indigo-500 bg-indigo-500 text-white flex-shrink-0">
-                <svg
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                </svg>
-              </div>
-              <h2 class="text-white dark:text-white text-lg font-medium">
-                Feature 1
-              </h2>
-            </div>
-            <div class="flex flex-col justify-between flex-grow">
-              <p class="leading-relaxed text-base text-white dark:text-gray-300">
-                Blue bottle crucifix vinyl post-ironic four dollar toast vegan
-                taxidermy. Gastropub indxgo juice poutine.
-              </p>
-              <a
-                href="#"
-                class="mt-3 text-black dark:text-white hover:text-blue-600 inline-flex items-center"
-              >
-                Learn More
-                <svg
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  class="w-4 h-4 ml-2"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7"></path>
-                </svg>
-              </a>
-            </div>
-          </div>
+      <div className="flex flex-col items-center mt-10">
+        <div className="flex items-center mb-6 w-full max-w-md">
+          <input
+            type="text"
+            placeholder="Gib ein neues Wort ein (German)"
+            value={newVocab}
+            onChange={(e) => setNewVocab(e.target.value)}
+            className="input border-2 border-zinc-800 flex-grow"
+          />
+          <button
+            onClick={addCard}
+            className="btn btn-primary ml-4"
+            disabled={loading}
+          >
+            {loading ? "Adding..." : "Add Card"}
+          </button>
         </div>
-
-        <div class="p-4 max-w-sm">
-          <div class="flex rounded-lg h-full dark:bg-gray-800 bg-teal-400 p-8 flex-col">
-            <div class="flex items-center mb-3">
-              <div class="w-8 h-8 mr-3 inline-flex items-center justify-center rounded-full dark:bg-indigo-500 bg-indigo-500 text-white flex-shrink-0">
-                <svg
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                </svg>
-              </div>
-              <h2 class="text-white dark:text-white text-lg font-medium">
-                Feature 2
-              </h2>
-            </div>
-            <div class="flex flex-col justify-between flex-grow">
-              <p class="leading-relaxed text-base text-white dark:text-gray-300">
-                Lorem ipsum dolor sit amet. In quos laboriosam non neque eveniet
-                33 nihil molestias. Rem perspiciatis iure ut laborum inventore
-                et maxime amet.
-              </p>
-              <a
-                href="#"
-                class="mt-3 text-black dark:text-white hover:text-blue-600 inline-flex items-center"
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+          {vocabList.map((card, index) => (
+            <ReactCardFlip
+              key={index}
+              isFlipped={card.flipped}
+              flipDirection="horizontal"
+            >
+              <div
+                className="p-4 w-80 h-48 cursor-pointer bg-teal-400 text-white rounded-lg flex flex-col items-center justify-center shadow-md"
+                onClick={() => flipCard(index)}
               >
-                Learn More
-                <svg
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  class="w-4 h-4 ml-2"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7"></path>
-                </svg>
-              </a>
-            </div>
-          </div>
-        </div>
-
-        <div class="p-4 max-w-sm">
-          <div class="flex rounded-lg h-full dark:bg-gray-800 bg-teal-400 p-8 flex-col">
-            <div class="flex items-center mb-3">
-              <div class="w-8 h-8 mr-3 inline-flex items-center justify-center rounded-full dark:bg-indigo-500 bg-indigo-500 text-white flex-shrink-0">
-                <svg
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  class="w-5 h-5"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                </svg>
+                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-500 mb-4">
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    className="w-6 h-6 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                  </svg>
+                </div>
+                <h2 className="text-lg font-medium text-center">
+                  {card.native}
+                </h2>
               </div>
-              <h2 class="text-white dark:text-white text-lg font-medium">
-                Feature 3
-              </h2>
-            </div>
-            <div class="flex flex-col justify-between flex-grow">
-              <p class="leading-relaxed text-base text-white dark:text-gray-300">
-                Lorem ipsum dolor sit amet. In quos laboriosam non neque eveniet
-                33 nihil molestias. Rem perspiciatis iure ut laborum inventore
-                et maxime amet.
-              </p>
-              <a
-                href="#"
-                class="mt-3 text-black dark:text-white hover:text-blue-600 inline-flex items-center"
+
+              <div
+                className="p-4 w-80 h-48 cursor-pointer bg-indigo-500 text-white rounded-lg flex flex-col items-center justify-center shadow-md"
+                onClick={() => flipCard(index)}
               >
-                Learn More
-                <svg
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  class="w-4 h-4 ml-2"
-                  viewBox="0 0 24 24"
-                >
-                  <path d="M5 12h14M12 5l7 7-7 7"></path>
-                </svg>
-              </a>
-            </div>
-          </div>
+                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-teal-400 mb-4">
+                  <svg
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    className="w-6 h-6 text-white"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+                  </svg>
+                </div>
+                <h2 className="text-lg font-medium text-center">
+                  {card.translation}
+                </h2>
+              </div>
+            </ReactCardFlip>
+          ))}
         </div>
       </div>
-      <Footer />
     </div>
   );
 };

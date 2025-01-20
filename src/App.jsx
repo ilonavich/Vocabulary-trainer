@@ -1,7 +1,6 @@
 // src/App.jsx
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
@@ -11,12 +10,13 @@ import Projects from "./pages/Projects";
 import Blog from "./pages/Blog";
 import VocabCards from "./pages/VocabCards";
 import AddVocab from "./pages/AddVocab";
+import MainLayout from "./pages/MainLayout";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Layout />}>
+        <Route path="/" element={<MainLayout />}>
           <Route index element={<Home />} /> {/* Default route */}
           <Route path="about" element={<About />} /> {/* /about route */}
           <Route path="contact" element={<Contact />} /> {/* /contact route */}

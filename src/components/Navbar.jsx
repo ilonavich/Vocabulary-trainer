@@ -1,5 +1,6 @@
 import React from "react";
 import Logo from "./Logo";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   return (
@@ -29,24 +30,6 @@ const Navbar = () => {
                   <li>
                     <a
                       className="text-gray-500 transition hover:text-gray-500/75"
-                      href="history"
-                    >
-                      History
-                    </a>
-                  </li>
-
-                  <li>
-                    <a
-                      className="text-gray-500 transition hover:text-gray-500/75"
-                      href="services"
-                    >
-                      Services
-                    </a>
-                  </li>
-
-                  <li>
-                    <a
-                      className="text-gray-500 transition hover:text-gray-500/75"
                       href="projects"
                     >
                       {" "}
@@ -55,13 +38,13 @@ const Navbar = () => {
                   </li>
 
                   <li>
-                    <a
+                    <Link
+                      to="Blog"
                       className="text-gray-500 transition hover:text-gray-500/75"
-                      href="blog"
                     >
                       {" "}
                       Blog{" "}
-                    </a>
+                    </Link>
                   </li>
                 </ul>
               </nav>

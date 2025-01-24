@@ -2,8 +2,34 @@ import { useState } from "react";
 import ReactCardFlip from "react-card-flip";
 import axios from "axios";
 
+// Custom useStorage Hook
+function useStorage(key, initialValue) {
+  const [storedValue, setStoredValue] = useState(() => {
+    try {
+      const item = window.localStorage.getItem(key);
+      return item ? JSON.parse(item) : initialValue;
+    } catch (error) {
+      console.error("Error accessing localStorage", error);
+      return initialValue;
+    }
+  });
+
+  const setValue = (value) => {
+    try {
+      const valueToStore =
+        value instanceof Function ? value(storedValue) : value;
+      setStoredValue(valueToStore);
+      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+    } catch (error) {
+      console.error("Error saving to localStorage", error);
+    }
+  };
+
+  return [storedValue, setValue];
+}
+
 const VocabCards = () => {
-  const [vocabList, setVocabList] = useState([
+  const [vocabList, setVocabList] = useStorage("vocabList", [
     { native: "Hallo", translation: "Hello", flipped: false },
     { native: "Danke", translation: "Thank you", flipped: false },
     { native: "Auf Wiedersehen", translation: "Goodbye", flipped: false },
@@ -11,8 +37,6 @@ const VocabCards = () => {
 
   const [newVocab, setNewVocab] = useState("");
   const [loading, setLoading] = useState(false);
-
-  // console.log(import.meta.env.VITE_OPENAI_TEXT);
 
   const translateWord = async (word) => {
     try {
@@ -24,7 +48,7 @@ const VocabCards = () => {
             {
               role: "system",
               content:
-                "You are a translation assistant. Translate the following word from German to English and return only the translate back, without adding comments",
+                "You are a translation assistant. Translate the following word from German to English and return the most common translation back and adding to infinitive to verbs and only capitalize English words when needed, without adding comments.",
             },
             {
               role: "user",
@@ -41,8 +65,7 @@ const VocabCards = () => {
           },
         }
       );
-      console.log(response.data);
-      return response.data.message?.content.trim() || "Translaiton failed";
+      return response.data.message?.content.trim() || "Translation failed";
     } catch (error) {
       console.error(
         "Translation API Error:",
@@ -70,6 +93,10 @@ const VocabCards = () => {
         i === index ? { ...card, flipped: !card.flipped } : card
       )
     );
+  };
+
+  const deleteCard = (index) => {
+    setVocabList((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -102,41 +129,26 @@ const VocabCards = () => {
                 className="p-4 w-80 h-48 cursor-pointer bg-teal-400 text-white rounded-lg flex flex-col items-center justify-center shadow-md"
                 onClick={() => flipCard(index)}
               >
-                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-indigo-500 mb-4">
-                  <svg
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="w-6 h-6 text-white"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                  </svg>
-                </div>
                 <h2 className="text-lg font-medium text-center">
                   {card.native}
                 </h2>
+                <div className="mt-4 flex space-x-4">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteCard(index);
+                    }}
+                    className="btn btn-sm btn-danger"
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
 
               <div
                 className="p-4 w-80 h-48 cursor-pointer bg-indigo-500 text-white rounded-lg flex flex-col items-center justify-center shadow-md"
                 onClick={() => flipCard(index)}
               >
-                <div className="w-12 h-12 flex items-center justify-center rounded-full bg-teal-400 mb-4">
-                  <svg
-                    fill="none"
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    className="w-6 h-6 text-white"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
-                  </svg>
-                </div>
                 <h2 className="text-lg font-medium text-center">
                   {card.translation}
                 </h2>
